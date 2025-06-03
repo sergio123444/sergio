@@ -1,0 +1,133 @@
+// Pinos do Arduino conectados ao Driver L298N para o Motor Esquerdo
+const int IN1_ESQ = 2;   // Pino de direção 1 do Motor Esquerdo
+const int IN2_ESQ = 3;   // Pino de direção 2 do Motor Esquerdo
+const int ENA_ESQ = 9;   // Pino de Habilitação (PWM) do Motor Esquerdo
+
+// Pinos do Arduino conectados ao Driver L298N para o Motor Direito
+const int IN1_DIR = 4;   // Pino de direção 1 do Motor Direito
+const int IN2_DIR = 5;   // Pino de direção 2 do Motor Direito
+const int ENA_DIR = 10;  // Pino de Habilitação (PWM) do Motor Direito
+
+// Velocidade padrão dos motores (de 0 a 255)
+// Você pode ajustar esse valor. 0 = parado, 255 = velocidade máxima.
+int velocidadePadrao = 180; 
+
+void setup() {
+  // Configura todos os pinos como SAÍDAS
+  pinMode(IN1_ESQ, OUTPUT);
+  pinMode(IN2_ESQ, OUTPUT);
+  pinMode(ENA_ESQ, OUTPUT);
+
+  pinMode(IN1_DIR, OUTPUT);
+  pinMode(IN2_DIR, OUTPUT);
+  pinMode(ENA_DIR, OUTPUT);
+
+  // Inicia a comunicação serial pra você enviar comandos e ver mensagens
+  Serial.begin(9600);
+  Serial.println("Carrinho pronto! Envie comandos: F (frente), B (tras), L (esquerda), R (direita), S (parar).");
+}
+
+void loop() {
+  // Verifica se tem algum comando chegando pela Serial
+  if (Serial.available()) {
+    char comando = Serial.read(); // Lê o comando
+
+    switch (comando) {
+      case 'F': // Frente
+      case 'f':
+        frente();
+        Serial.println("Andando pra frente.");
+        break;
+      case 'B': // Trás
+      case 'b':
+        tras();
+        Serial.println("Andando pra tras.");
+        break;
+      case 'L': // Virar Esquerda
+      case 'l':
+        esquerda();
+        Serial.println("Virando para esquerda.");
+        break;
+      case 'R': // Virar Direita
+      case 'r':
+        direita();
+        Serial.println("Virando para direita.");
+        break;
+      case 'S': // Parar
+      case 's':
+        parar();
+        Serial.println("Parando.");
+        break;
+      default:
+        Serial.println("Comando invalido. Tente F, B, L, R ou S.");
+        break;
+    }
+  }
+}
+
+// --- Funções de Movimento ---
+
+// Faz o carrinho andar para frente
+void frente() {
+  // Motor Esquerdo
+  digitalWrite(IN1_ESQ, HIGH);  // Seta a direção
+  digitalWrite(IN2_ESQ, LOW);
+  analogWrite(ENA_ESQ, velocidadePadrao); // Liga o motor com a velocidade
+
+  // Motor Direito
+  digitalWrite(IN1_DIR, HIGH);  // Seta a mesma direção
+  digitalWrite(IN2_DIR, LOW);
+  analogWrite(ENA_DIR, velocidadePadrao); // Liga o motor com a velocidade
+}
+
+// Faz o carrinho andar para trás
+void tras() {
+  // Motor Esquerdo
+  digitalWrite(IN1_ESQ, LOW);   // Inverte a direção
+  digitalWrite(IN2_ESQ, HIGH);
+  analogWrite(ENA_ESQ, velocidadePadrao);
+
+  // Motor Direito
+  digitalWrite(IN1_DIR, LOW);   // Inverte a direção
+  digitalWrite(IN2_DIR, HIGH);
+  analogWrite(ENA_DIR, velocidadePadrao);
+}
+
+// Faz o carrinho virar para a esquerda (girando no próprio eixo)
+void esquerda() {
+  // Motor Esquerdo para trás
+  digitalWrite(IN1_ESQ, LOW);
+  digitalWrite(IN2_ESQ, HIGH);
+  analogWrite(ENA_ESQ, velocidadePadrao);
+
+  // Motor Direito para frente
+  digitalWrite(IN1_DIR, HIGH);
+  digitalWrite(IN2_DIR, LOW);
+  analogWrite(ENA_DIR, velocidadePadrao);
+}
+
+// Faz o carrinho virar para a direita (girando no próprio eixo)
+void direita() {
+  // Motor Esquerdo para frente
+  digitalWrite(IN1_ESQ, HIGH);
+  digitalWrite(IN2_ESQ, LOW);
+  analogWrite(ENA_ESQ, velocidadePadrao);
+
+  // Motor Direito para trás
+  digitalWrite(IN1_DIR, LOW);
+  digitalWrite(IN2_DIR, HIGH);
+  analogWrite(ENA_DIR, velocidadePadrao);
+}
+
+// Para o carrinho completamente
+void parar() {
+  // Desliga a habilitação dos motores (velocidade 0)
+  analogWrite(ENA_ESQ, 0); 
+  analogWrite(ENA_DIR, 0); 
+
+  // Opcional: Garante que os pinos de direção estão em LOW para não ter corrente residual
+  digitalWrite(IN1_ESQ, LOW);
+  digitalWrite(IN2_ESQ, LOW);
+  digitalWrite(IN1_DIR, LOW);
+  digitalWrite(IN2_DIR, LOW);
+}
