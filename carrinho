@@ -1,0 +1,136 @@
+// Pinos do Arduino conectados ao Driver L298N para o Motor Esquerdo (Motor A)
+const int IN1_ESQ = 2;   // Pino IN1 do L298N
+const int IN2_ESQ = 3;   // Pino IN2 do L298N
+const int ENA_ESQ = 9;   // Pino ENA do L298N (PWM para velocidade)
+
+// Pinos do Arduino conectados ao Driver L298N para o Motor Direito (Motor B)
+const int IN1_DIR = 4;   // Pino IN3 do L298N (convenção IN1_DIR é IN3 no L298N)
+const int IN2_DIR = 5;   // Pino IN4 do L298N (convenção IN2_DIR é IN4 no L298N)
+const int ENA_DIR = 10;  // Pino ENB do L298N (PWM para velocidade)
+
+// Velocidade padrão dos motores (0-255)
+// Experimente com esse valor. Valores muito baixos podem não mover o motor.
+int velocidadePadrao = 150; 
+
+void setup() {
+  // Configura os pinos como SAÍDAS
+  pinMode(IN1_ESQ, OUTPUT);
+  pinMode(IN2_ESQ, OUTPUT);
+  pinMode(ENA_ESQ, OUTPUT);
+
+  pinMode(IN1_DIR, OUTPUT);
+  pinMode(IN2_DIR, OUTPUT);
+  pinMode(ENA_DIR, OUTPUT);
+
+  // Inicia a comunicação serial para depuração e controle
+  Serial.begin(9600);
+  Serial.println("Carrinho pronto! Envie comandos (F, B, L, R, S).");
+}
+
+void loop() {
+  // Verifica se há dados disponíveis na serial
+  if (Serial.available()) {
+    char comando = Serial.read(); // Lê o comando recebido
+
+    switch (comando) {
+      case 'F': // Frente
+      case 'f':
+        frente();
+        Serial.println("Movendo para frente.");
+        break;
+      case 'B': // Trás
+      case 'b':
+        tras();
+        Serial.println("Movendo para tras.");
+        break;
+      case 'L': // Virar Esquerda
+      case 'l':
+        esquerda();
+        Serial.println("Virando para esquerda.");
+        break;
+      case 'R': // Virar Direita
+      case 'r':
+        direita();
+        Serial.println("Virando para direita.");
+        break;
+      case 'S': // Parar
+      case 's':
+        parar();
+        Serial.println("Parando.");
+        break;
+      default:
+        Serial.println("Comando invalido. Use F, B, L, R, S.");
+        break;
+    }
+  }
+}
+
+// --- Funções de Movimento ---
+
+void frente() {
+  // Motor Esquerdo (Motor A)
+  digitalWrite(IN1_ESQ, HIGH);  // HIGH para uma direção
+  digitalWrite(IN2_ESQ, LOW);   // LOW para a outra
+  analogWrite(ENA_ESQ, velocidadePadrao); // Liga o motor com a velocidade
+
+  // Motor Direito (Motor B)
+  digitalWrite(IN1_DIR, HIGH);  // HIGH para a mesma direção
+  digitalWrite(IN2_DIR, LOW);   // LOW para a outra
+  analogWrite(ENA_DIR, velocidadePadrao); // Liga o motor com a velocidade
+}
+
+void tras() {
+  // Motor Esquerdo (Motor A)
+  digitalWrite(IN1_ESQ, LOW);   // Inverte a direção
+  digitalWrite(IN2_ESQ, HIGH);
+  analogWrite(ENA_ESQ, velocidadePadrao);
+
+  // Motor Direito (Motor B)
+  digitalWrite(IN1_DIR, LOW);   // Inverte a direção
+  digitalWrite(IN2_DIR, HIGH);
+  analogWrite(ENA_DIR, velocidadePadrao);
+}
+
+void esquerda() {
+  // Para virar para a esquerda, o motor esquerdo deve ir para trás e o direito para frente.
+  // Ou, para uma curva mais suave, o motor esquerdo para e o direito avança.
+
+  // Opção 1: Gira no próprio eixo (motor esquerdo para trás, direito para frente)
+  digitalWrite(IN1_ESQ, LOW);   // Motor esquerdo para trás
+  digitalWrite(IN2_ESQ, HIGH);
+  analogWrite(ENA_ESQ, velocidadePadrao);
+
+  digitalWrite(IN1_DIR, HIGH);  // Motor direito para frente
+  digitalWrite(IN2_DIR, LOW);
+  analogWrite(ENA_DIR, velocidadePadrao);
+
+  // Opção 2 (curva mais suave): Motor esquerdo parado, motor direito para frente.
+  // pararMotorEsquerdo();
+  // digitalWrite(IN1_DIR, HIGH);
+  // digitalWrite(IN2_DIR, LOW);
+  // analogWrite(ENA_DIR, velocidadePadrao);
+}
+
+void direita() {
+  // Para virar para a direita, o motor direito deve ir para trás e o esquerdo para frente.
+
+  // Opção 1: Gira no próprio eixo (motor direito para trás, esquerdo para frente)
+  digitalWrite(IN1_ESQ, HIGH);  // Motor esquerdo para frente
+  digitalWrite(IN2_ESQ, LOW);
+  analogWrite(ENA_ESQ, velocidadePadrao);
+
+  digitalWrite(IN1_DIR, LOW);   // Motor direito para trás
+  digitalWrite(IN2_DIR, HIGH);
+  analogWrite(ENA_DIR, velocidadePadrao);
+
+  // Opção 2 (curva mais suave): Motor direito parado, motor esquerdo para frente.
+  // pararMotorDireito();
+  // digitalWrite(IN1_ESQ, HIGH);
+  // digitalWrite(IN2_ESQ, LOW);
+  // analogWrite(ENA_ESQ, velocidadePadrao);
+}
+
+void parar() {
+  // Desliga a habilitação dos motores (PWM em 0 ou LOW nos pinos ENA/ENB)
+  analogWrite(ENA_ESQ, 0); // ou digitalWrite(ENA_ESQ, LOW);
+  analogWrite(ENA_DIR, 0); // ou digitalWrite(ENA_DIR, LOW);
