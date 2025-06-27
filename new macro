@@ -1,0 +1,49 @@
+-- Generated with Sigma Spy Github: https://github.com/depthso/Sigma-Spy
+-- Services
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+-- Remote
+local PlaceTower = ReplicatedStorage.Remotes.PlaceTower -- RemoteEvent 
+
+PlaceTower:FireServer(
+    "Speed-O-Sonic",
+    CFrame.new(-159, 198, 10, 1, 0, 0, 0, 1, 0, 0, 0, 1)
+)
+-- Generated with Sigma Spy Github: https://github.com/depthso/Sigma-Spy
+-- Services
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+-- Remote
+local PlaceTower = ReplicatedStorage.Remotes.PlaceTower -- RemoteEvent 
+
+PlaceTower:FireServer(
+    "Nami",
+    CFrame.new(-153, 204, 2, 1, 0, 0, 0, 1, 0, 0, 0, 1)
+)
+-- Generated with Sigma Spy Github: https://github.com/depthso/Sigma-Spy
+-- Services
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+-- Remote
+local Upgrade = ReplicatedStorage.Remotes.Upgrade -- RemoteFunction 
+
+-- Variables
+local Sigma1 = workspace.Towers["Speed-O-Sonic"]
+
+Upgrade:InvokeServer(
+    Sigma1
+)
+-- Generated with Sigma Spy Github: https://github.com/depthso/Sigma-Spy
+-- Services
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+-- Remote
+local Upgrade = ReplicatedStorage.Remotes.Upgrade -- RemoteFunction 
+
+-- Variables
+local Nami = workspace.Towers.Nami
+
+Upgrade:InvokeServer(
+    Nami
+)
+w
